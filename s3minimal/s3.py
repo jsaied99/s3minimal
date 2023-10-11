@@ -19,10 +19,10 @@ class S3:
 
     def __init__(
         self,
-        endpoint_url: str,
-        region_name: str,
-        aws_access_key_id: str,
-        aws_secret_access_key: str,
+        endpoint_url: str = None,
+        region_name: str = None,
+        aws_access_key_id: str = None,
+        aws_secret_access_key: str = None,
         bucket: str = None,
     ):
         """
@@ -36,10 +36,12 @@ class S3:
         ... )
         """
         self.session = get_session()
-        self.endpoint_url = endpoint_url
-        self.region_name = region_name
-        self.aws_access_key_id = aws_access_key_id
-        self.aws_secret_access_key = aws_secret_access_key
+        self.endpoint_url = os.getenv("AWS_ENDPOINT_URL", endpoint_url)
+        self.region_name = os.getenv("AWS_DEFAULT_REGION", region_name)
+        self.aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID", aws_access_key_id)
+        self.aws_secret_access_key = os.getenv(
+            "AWS_SECRET_ACCESS_KEY", aws_secret_access_key
+        )
         self.set_bucket(bucket)
 
     def set_bucket(self, bucket: str) -> None:
@@ -49,7 +51,8 @@ class S3:
         >>> set_bucket("bucket_name")
         None
         """
-        self.bucket = bucket
+        self.bucket = os.getenv("AWS_BUCKET", bucket)
+        print(f"Using bucket {self.bucket}")
 
     async def __get_client(self):
         """

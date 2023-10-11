@@ -2,3 +2,4 @@ tests
 dist
 .env
 __pycache__
+.vscode

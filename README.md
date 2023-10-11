@@ -1,8 +1,4 @@
-===============================
-s3minimal - The Minimalist S3 Library
-===============================
-
-|Version| |Python| |License|
+# s3minimal - The Minimalist S3 Library
 
 `s3minimal` is a Python library designed to simplify interactions with Amazon S3 using the `aiobotocore` and `botocore` libraries. It provides asynchronous and synchronous classes for various S3 operations.
 

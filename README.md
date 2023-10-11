@@ -1,5 +1,12 @@
 # s3minimal - The Minimalist S3 Library
 
+![PyPI - Version](https://img.shields.io/pypi/v/s3minimal)
+
+
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/s3minimal)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 `s3minimal` is a Python library designed to simplify interactions with Amazon S3 using the `aiobotocore` and `botocore` libraries. It provides asynchronous and synchronous classes for various S3 operations.
 
 ## Installation
@@ -23,6 +30,9 @@ s3 = S3(
     aws_access_key_id="your_access_key",
     aws_secret_access_key="your_secret_key",
 )
+
+# or if you have environment variables set for your AWS credentials
+s3 = S3()
 ```
 
 For synchronous operations, you can use the `S3Sync` class in a similar manner, and all asynchronous methods described below can be called without `await`.

@@ -1,4 +1,4 @@
-# s3minimal
+## s3minimal
 
 `s3minimal` is a Python library designed to simplify interactions with Amazon S3 using the `aiobotocore` and `botocore` libraries. It provides asynchronous and synchronous classes for various S3 operations.
 

@@ -66,7 +66,11 @@ class S3:
             aws_secret_access_key=self.aws_secret_access_key,
         )
 
-    async def download(self, key: str) -> io.BytesIO:
+    async def download(
+        self,
+        key: str,
+        bucket: str = None,
+    ) -> io.BytesIO:
         """
         Downloads a file from S3.
         # Example:
@@ -75,7 +79,9 @@ class S3:
         """
         async with await self.__get_client() as client:
             try:
-                obj = await client.get_object(Bucket=self.bucket, Key=key)
+                if bucket is None:
+                    bucket = self.bucket
+                obj = await client.get_object(Bucket=bucket, Key=key)
                 file_contents = await obj["Body"].read()
                 return io.BytesIO(file_contents)
             except Exception:
@@ -85,6 +91,7 @@ class S3:
         self,
         key: str,
         file_obj: io.BytesIO,
+        bucket: str = None,
     ) -> None:
         """
         Uploads a file to S3.
@@ -94,7 +101,10 @@ class S3:
         """
         async with await self.__get_client() as client:
             try:
-                await client.put_object(Bucket=self.bucket, Key=key, Body=file_obj)
+                if bucket is None:
+                    bucket = self.bucket
+
+                await client.put_object(Bucket=bucket, Key=key, Body=file_obj)
             except Exception:
                 raise UploadError(f"Failed to upload {key}")
 
@@ -187,6 +197,56 @@ class S3:
             except Exception:
                 raise DownloadError(f"Failed to list files in {path}")
 
+    async def _migrate_s3(
+        self, src_bucket: str, src_key: str, dest_bucket: str, dest_key: str
+    ) -> bool:
+        """
+        Migrates file from one bucket to another.
+        # Example:
+        >>> migrate("src_bucket", "src_key", "dest_bucket", "dest_key")
+        True
+        """
+        try:
+            async with await self.__get_client() as client:
+                await client.copy_object(
+                    Bucket=dest_bucket,
+                    CopySource={"Bucket": src_bucket, "Key": src_key},
+                    Key=dest_key,
+                )
+                await client.delete_object(Bucket=src_bucket, Key=src_key)
+                return True
+        except Exception:
+            raise MigrateError(f"Failed to migrate {src_key} to {dest_key}")
+
+    async def _migrate_do(
+        self, src_bucket: str, src_key: str, dest_bucket: str, dest_key: str
+    ) -> bool:
+        """
+        Migrates file from one bucket to another.
+        # Example:
+        >>> migrate("src_bucket", "src_key", "dest_bucket", "dest_key")
+        True
+        """
+        try:
+            file_obj = await self.download(src_key, bucket=src_bucket)
+            await self.upload(dest_key, file_obj, bucket=dest_bucket)
+            return True
+        except Exception:
+            raise MigrateError(f"Failed to migrate {src_key} to {dest_key}")
+
+    async def migrate(
+        self, src_bucket: str, src_key: str, dest_bucket: str, dest_key: str
+    ) -> bool:
+        """
+        Migrates file from one bucket to another.
+        # Example:
+        >>> migrate("src_bucket", "src_key", "dest_bucket", "dest_key")
+        True
+        """
+        if "digitaloceanspaces" in self.endpoint_url:
+            return await self._migrate_do(src_bucket, src_key, dest_bucket, dest_key)
+        return await self._migrate_s3(src_bucket, src_key, dest_bucket, dest_key)
+
     @staticmethod
     def create_key(*args, **kwargs) -> str:
         """
@@ -222,3 +282,8 @@ class S3Sync(S3):
 
     def list_files(self, path: str) -> list:
         return asyncio.run(super().list_files(path))
+
+    def migrate(
+        self, src_bucket: str, src_key: str, dest_bucket: str, dest_key: str
+    ) -> bool:
+        raise NotImplementedError("Synchronous version of migrate not implemented")

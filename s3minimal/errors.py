@@ -20,3 +20,7 @@ class GeneratePresignedUrlError(BaseError):
 
 class CreateBucketError(BaseError):
     pass
+
+
+class MigrateError(BaseError):
+    pass

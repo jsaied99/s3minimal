@@ -189,11 +189,13 @@ class S3:
         """
         async with await self.__get_client() as client:
             try:
-                response = await client.list_objects_v2(
-                    Bucket=self.bucket,
-                    Prefix=path,
-                )
-                return response["Contents"]
+                paginator = client.get_paginator("list_objects_v2")
+                pages = paginator.paginate(Bucket=self.bucket, Prefix=path)
+                files = []
+                async for page in pages:
+                    files.extend(page["Contents"])
+
+                return files
             except Exception:
                 raise DownloadError(f"Failed to list files in {path}")
 

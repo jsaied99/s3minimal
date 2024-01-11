@@ -166,6 +166,13 @@ class S3:
                     )
             except ClientError as e:
                 raise CreateBucketError(f"Failed to create bucket {bucket_name}: {e}")
+            
+    def get_client(self):
+        """
+        Gets a client for S3. This is a private method.
+        #Opening this for compatibility with other libraries
+        """
+        return self.__get_client()
 
     async def list_files(self, path: str) -> list:
         """

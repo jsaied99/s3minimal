@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "s3minimal"
-version = "0.1.8"
+version = "0.2"
 description = "A Python library designed to simplify interactions with Amazon S3 using the `aiobotocore` and `botocore` libraries. It provides asynchronous and synchronous classes for various S3 operations."
 authors = ["Jamal <jsaied99@gmail.com>"]
 readme = "README.md"

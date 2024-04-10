@@ -52,7 +52,6 @@ class S3:
         None
         """
         self.bucket = os.getenv("AWS_BUCKET", bucket)
-        print(f"Using bucket {self.bucket}")
 
     async def __get_client(self):
         """
@@ -166,7 +165,7 @@ class S3:
                     )
             except ClientError as e:
                 raise CreateBucketError(f"Failed to create bucket {bucket_name}: {e}")
-            
+
     def get_client(self):
         """
         Gets a client for S3. This is a private method.

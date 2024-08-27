@@ -4,6 +4,7 @@ import asyncio
 from aiobotocore.session import get_session, AioSession
 from botocore.exceptions import ClientError
 from s3minimal.errors import *
+from botocore.client import Config
 
 HOUR = 60 * 60
 DAY = HOUR * 24
@@ -16,6 +17,7 @@ class S3:
     region_name: str
     aws_access_key_id: str
     aws_secret_access_key: str
+    config: Config
 
     def __init__(
         self,
@@ -24,6 +26,7 @@ class S3:
         aws_access_key_id: str = None,
         aws_secret_access_key: str = None,
         bucket: str = None,
+        config: Config | None = None,
     ):
         """
         Initializes S3.
@@ -42,6 +45,9 @@ class S3:
         self.aws_secret_access_key = os.getenv(
             "AWS_SECRET_ACCESS_KEY", aws_secret_access_key
         )
+        if config is None:
+            config = Config()
+        self.config = config
         self.set_bucket(bucket)
 
     def set_bucket(self, bucket: str) -> None:
@@ -63,6 +69,7 @@ class S3:
             region_name=self.region_name,
             aws_access_key_id=self.aws_access_key_id,
             aws_secret_access_key=self.aws_secret_access_key,
+            config=self.config,
         )
 
     async def download(
